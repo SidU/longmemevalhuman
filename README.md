@@ -4,6 +4,8 @@ This repo is a lightweight web app for humans to experience the kinds of questio
 and context in the LongMemEval dataset. The goal is to make it easy to explore
 long-context memory prompts, answer them yourself, and see how the tasks are structured.
 
+<img width="3248" height="2006" alt="image" src="https://github.com/user-attachments/assets/29b707a6-3690-49d4-b0b6-2416b7b0dcdf" />
+
 ## What it is
 - A Next.js app that samples LongMemEval questions and shows their full dialogue history.
 - A simple test runner with timing and a shareable result page.
