@@ -188,3 +188,16 @@ button:disabled {
 .option-text .markdown p {
   margin: 0;
 }
+
+.answer-result {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.answer-result.correct {
+  color: #16a34a;
+}
+
+.answer-result.incorrect {
+  color: #dc2626;
+}

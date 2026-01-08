@@ -7,9 +7,10 @@ type Props = {
   question: Question;
   value: string;
   onChange: (value: string) => void;
+  disabled?: boolean;
 };
 
-export default function QuestionPrompt({ question, value, onChange }: Props) {
+export default function QuestionPrompt({ question, value, onChange, disabled }: Props) {
   if (question.type === 'multiple_choice' && question.options) {
     return (
       <div>
@@ -20,6 +21,7 @@ export default function QuestionPrompt({ question, value, onChange }: Props) {
               name={question.id}
               value={option}
               checked={value === option}
+              disabled={disabled}
               onChange={(event) => onChange(event.target.value)}
             />
             <span className="option-text">
@@ -42,6 +44,7 @@ export default function QuestionPrompt({ question, value, onChange }: Props) {
               name={question.id}
               value={option}
               checked={value === option}
+              disabled={disabled}
               onChange={(event) => onChange(event.target.value)}
             />
             <span className="option-text">{option}</span>
@@ -56,6 +59,7 @@ export default function QuestionPrompt({ question, value, onChange }: Props) {
       className="input"
       placeholder="Type your answer"
       value={value}
+      disabled={disabled}
       onChange={(event) => onChange(event.target.value)}
     />
   );

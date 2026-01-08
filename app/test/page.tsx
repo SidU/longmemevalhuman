@@ -7,7 +7,7 @@ import Markdown from '../../components/Markdown';
 import QuestionPrompt from '../../components/QuestionPrompt';
 import { fetchDataset, sampleQuestions } from '../../lib/data';
 import type { DatasetVariant, SampledQuestion } from '../../lib/types';
-import { formatDuration, scoreResponses } from '../../lib/scoring';
+import { formatDuration, isAnswerCorrect, scoreResponses } from '../../lib/scoring';
 import { encodeShareToken, makeSharePayload } from '../../lib/share';
 
 const parseVariant = (value: string | null): DatasetVariant =>
@@ -33,12 +33,15 @@ export default function TestPage() {
   const [questions, setQuestions] = useState<SampledQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [revealedAnswers, setRevealedAnswers] = useState<Record<string, boolean>>({});
+  const [submittedAnswers, setSubmittedAnswers] = useState<Record<string, boolean>>({});
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [elapsed, setElapsed] = useState(0);
 
   const currentQuestion = questions[currentIndex];
-  const isAnswerRevealed = currentQuestion ? revealedAnswers[currentQuestion.id] : false;
+  const isSubmitted = currentQuestion ? submittedAnswers[currentQuestion.id] : false;
+  const isCorrect = currentQuestion
+    ? isAnswerCorrect(currentQuestion, answers[currentQuestion.id] ?? '')
+    : false;
 
   const progressLabel = useMemo(() => {
     if (questions.length === 0) {
@@ -82,7 +85,7 @@ export default function TestPage() {
     if (!startedAt) {
       return;
     }
-    const confirmSubmit = window.confirm('Finish the test and submit your answers?');
+    const confirmSubmit = window.confirm('End the test and submit your answers?');
     if (!confirmSubmit) {
       return;
     }
@@ -152,6 +155,7 @@ export default function TestPage() {
               <QuestionPrompt
                 question={currentQuestion}
                 value={answers[currentQuestion.id] ?? ''}
+                disabled={isSubmitted}
                 onChange={(value) =>
                   setAnswers((prev) => ({
                     ...prev,
@@ -159,8 +163,11 @@ export default function TestPage() {
                   }))
                 }
               />
-              {isAnswerRevealed && (
+              {isSubmitted && (
                 <div style={{ marginTop: 12 }}>
+                  <div className={`answer-result ${isCorrect ? 'correct' : 'incorrect'}`}>
+                    {isCorrect ? 'Correct.' : 'Incorrect.'}
+                  </div>
                   <div className="label">Correct answer</div>
                   <Markdown content={currentQuestion.answer} className="markdown" />
                 </div>
@@ -177,28 +184,28 @@ export default function TestPage() {
                 <button
                   type="button"
                   className="secondary"
+                  onClick={() =>
+                    setSubmittedAnswers((prev) => ({
+                      ...prev,
+                      [currentQuestion.id]: true
+                    }))
+                  }
+                  disabled={isSubmitted}
+                >
+                  Submit Answer
+                </button>
+                <button
+                  type="button"
+                  className="secondary"
                   disabled={currentIndex === questions.length - 1}
                   onClick={() =>
                     setCurrentIndex((prev) => Math.min(prev + 1, questions.length - 1))
                   }
                 >
-                  Next
-                </button>
-                <button
-                  type="button"
-                  className="secondary"
-                  onClick={() =>
-                    setRevealedAnswers((prev) => ({
-                      ...prev,
-                      [currentQuestion.id]: true
-                    }))
-                  }
-                  disabled={isAnswerRevealed}
-                >
-                  {isAnswerRevealed ? 'Answer shown' : 'Give Up'}
+                  Skip
                 </button>
                 <button type="button" onClick={handleSubmit}>
-                  Finish Test
+                  End Test
                 </button>
               </div>
               <div className="question-nav" style={{ marginTop: 16 }}>
